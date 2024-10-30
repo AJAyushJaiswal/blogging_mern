@@ -11,6 +11,7 @@ const connectToDB = async () => {
         if (process.env.NODE_ENV !== 'production') {
             console.log('ERROR: ', error);
         }
+        process.exit(1);
     }
 };
 

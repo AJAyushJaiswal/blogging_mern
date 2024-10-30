@@ -12,5 +12,6 @@ connectToDB().then(() => {
     catch(error){
         console.log('Error starting the server!');
         if(process.env.NODE_ENV !== 'production') console.log(error);
+        process.exit(1);
     }
 });
