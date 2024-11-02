@@ -10,31 +10,34 @@ cloudinary.config({
 });
 
 const uploadToCloudinary = async (image) => {
-    if(!image){
+    if(!image || !image.buffer || !Buffer.isBuffer(image.buffer)){
         if (process.env.NODE_ENV !== 'production') console.log('Image is required!');
         throw new ApiError(500, "Image is required!");
     }
 
-    try{
-        const result = await cloudinary.uploader.upload(image, {
+    if(!Buffer.isBuffer(image.buffer)){
+        if (process.env.NODE_ENV !== 'production') console.log('Image is required!');
+        throw new ApiError(500, "Invalid file!");
+    }
+
+    const url = await new Promise((res, rej) => {
+        const stream = cloudinary.uploader.upload_stream({
             resource_type: 'image',
             folder: `${CLOUDINARY_MAIN_FOLDER}/${process.env.NODE_ENV === 'production' ? 'production' : 'development'}`
+        }, (error, result) => {
+            if(error || !result){
+                if(process.env.NODE_ENV !== 'production') console.log(error);
+
+                return rej(new ApiError(500, "Error uploading image!"));
+            }
+
+            return res(result.url);
         });
-        if(result){
-            throw new ApiError(500, "Error uploading image!");
-        }
-        
-        return result.url;
-    }
-    catch(error){
-        if(process.env.NODE_ENV !== 'production') console.log(error);
-        
-        if(error instanceof ApiError){
-            throw new ApiError(error.statusCode, error.message);
-        }
-        
-        throw new ApiError(500, "Error uploading image!");
-    }
+
+        stream.end(image.buffer);
+    });
+
+    return url;
 }
 
 
