@@ -1,4 +1,5 @@
 import {asyncHandler} from '../utils/asyncHandler.js';
+import {validationResult} from 'express-validator';
 import {ApiError} from '../utils/ApiError.js';
 import {User} from '../models/user.model.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
@@ -7,7 +8,7 @@ import {uploadToCloudinary} from '../utils/cloudinary.js';
 
 const registerUser = asyncHandler(async(req, res)=>{
     const valRes = validationResult(req);
-    if(!valRes.empty()){
+    if(!valRes.isEmpty()){
         throw new ApiError(400, "Invalid user data!", null, valRes.errors);
     }
     
@@ -27,12 +28,11 @@ const registerUser = asyncHandler(async(req, res)=>{
         }
     }
     
-    const user = User.create({firstname, lastname, email, password, avatar});
+    const user = await User.create({firstname, lastname, email, password, avatar});
     if(!user){
         throw new ApiError(400, "Error registering the user!");
     }
     
-
     const accessToken = user.generateAccessToken();
     if(!accessToken){
        throw new ApiError(400, "Error generating access token!"); 
@@ -51,6 +51,7 @@ const registerUser = asyncHandler(async(req, res)=>{
     
     delete updatedUser._doc.__v; 
     delete updatedUser._doc.password; 
+    delete updatedUser._doc.refreshToken;
     delete updatedUser._doc.createdAt; 
     delete updatedUser._doc.updatedAt; 
     
@@ -65,7 +66,7 @@ const registerUser = asyncHandler(async(req, res)=>{
     res.status(201)
     .cookie('accessToken', accessToken, {...options, accessMaxAge})
     .cookie('refreshToken', refreshToken, {...options, refreshMaxAge})
-    .json(new ApiResponse(201, user, "User registered successfully!"));
+    .json(new ApiResponse(201, "User registered successfully!", {user, accessToken, refreshToken}));
 });
 
 
