@@ -12,12 +12,16 @@ const userSchema = new Schema({
     email: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        index: true
     },
     password: {
         type: String,
         required: true,
         trim: true
+    },
+    refreshToken: {
+        type: String
     }
 }, {timestamps: true});
 
