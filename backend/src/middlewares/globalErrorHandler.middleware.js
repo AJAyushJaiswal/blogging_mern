@@ -13,7 +13,7 @@ const globalErrorHandler = (err, req, res, next) => {
         });
     }
     else{
-        return res.status(statusCode).json({
+        return res.status(500).json({
             statusCode: 500,
             message: 'Internal Server Error!',
             data: null,
