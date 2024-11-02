@@ -2,12 +2,14 @@ import {Router} from 'express';
 import {body} from 'express-validator';
 import {registerUser} from '../controllers/user.controllers.js';
 import {upload} from '../middlewares/multer.middleware.js';
+import {imageTooLargeErrorHandler} from '../middlewares/imageTooLargeErrorHandler.middleware.js';
 
 
 const router = Router();
 
 router.route('/register').post(
-    upload.single('avatar'),    
+    upload.single('avatar'),
+    imageTooLargeErrorHandler,
     [
         body('firstname')
         .notEmpty().withMessage('First name is required!')
