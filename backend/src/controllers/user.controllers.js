@@ -2,6 +2,7 @@ import {asyncHandler} from '../utils/asyncHandler.js';
 import {ApiError} from '../utils/ApiError.js';
 import {User} from '../models/user.model.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
+import {uploadToCloudinary} from '../utils/cloudinary.js';
 
 
 const registerUser = asyncHandler(async(req, res)=>{
@@ -10,12 +11,27 @@ const registerUser = asyncHandler(async(req, res)=>{
         throw new ApiError(400, "Invalid user data!", null, valRes.errors);
     }
     
-    const {name, email, password} = req.body;
+    const {firstname, lastname, email, password} = req.body;
+    const image = req.file;
 
-    const user = User.create({name, email, password});
+    let avatar = null;
+    if(image){
+        try{
+            avatar = await uploadToCloudinary(image);
+            if(!avatar){
+                throw new ApiError(400, "Error uploading the image!");
+            }
+        }
+        catch(error){
+            throw new ApiError(400, "Error uploading the image!");
+        }
+    }
+    
+    const user = User.create({firstname, lastname, email, password, avatar});
     if(!user){
         throw new ApiError(400, "Error registering the user!");
     }
+    
 
     const accessToken = user.generateAccessToken();
     if(!accessToken){
