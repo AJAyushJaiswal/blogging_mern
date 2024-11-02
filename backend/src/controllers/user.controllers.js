@@ -15,6 +15,11 @@ const registerUser = asyncHandler(async(req, res)=>{
     const {firstname, lastname, email, password} = req.body;
     const image = req.file;
 
+    const userAlreadyExists = await User.exists({email}).lean();
+    if(userAlreadyExists){
+        throw new ApiError(400, "User with this email already exists!");
+    }
+
     let avatar = null;
     if(image){
         try{
