@@ -1,24 +1,26 @@
 import {Router} from 'express';
 import {body} from 'express-validator';
 import {registerUser} from '../controllers/user.controllers.js';
+import {upload} from '../middlewares/multer.middleware.js';
 
 
 const router = Router();
 
 router.route('/register').post(
+    upload.single('avatar'),    
     [
         body('firstname')
         .notEmpty().withMessage('First name is required!')
         .isString().withMessage('First name must be a string!')
         .trim()
-        .length({min: 2}).withMessage('First name must be at least 2 characters')
+        .isLength({min: 2}).withMessage('First name must be at least 2 characters')
         .matches(/^[a-zA-Z]+$/).withMessage('First name must only contain uppercase or lowercase letters!'),
 
         body('lastname')
         .notEmpty().withMessage('Last name is required!')
         .isString().withMessage('Last name must be a string!')
         .trim()
-        .length({min: 2}).withMessage('Last name must be at least 2 characters!')
+        .isLength({min: 2}).withMessage('Last name must be at least 2 characters!')
         .matches(/^[a-zA-Z]+$/).withMessage('Last name must only contain uppercase or lowercase letters!'),
         
         body('email')
