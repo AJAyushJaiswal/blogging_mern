@@ -2,7 +2,11 @@ const DB_NAME = process.env.NODE_ENV === 'production' ? 'production' : 'developm
 
 const CLOUDINARY_MAIN_FOLDER = 'blogging_mern';
 
+const allowedImageMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+
 export {
     DB_NAME,
-    CLOUDINARY_MAIN_FOLDER
+    CLOUDINARY_MAIN_FOLDER,
+    allowedImageMimeTypes
 }
