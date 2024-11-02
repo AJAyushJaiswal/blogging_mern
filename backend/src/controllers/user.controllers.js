@@ -51,3 +51,8 @@ const registerUser = asyncHandler(async(req, res)=>{
     .cookie('refreshToken', refreshToken, {...options, refreshMaxAge})
     .json(new ApiResponse(201, user, "User registered successfully!"));
 });
+
+
+export {
+    registerUser
+}
