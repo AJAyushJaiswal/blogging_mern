@@ -40,18 +40,21 @@ const registerUser = asyncHandler(async(req, res)=>{
     
     const accessToken = user.generateAccessToken();
     if(!accessToken){
-       throw new ApiError(400, "Error generating access token!"); 
+        if(process.env.NODE_ENV !== 'production') console.log("Error generating the access token!");
+        throw new ApiError(500, "Error registering the user!");
     }
 
     const refreshToken = user.generateRefreshToken();
     if(!refreshToken){
-       throw new ApiError(400, "Error generating refresh token!"); 
+        if(process.env.NODE_ENV !== 'production') console.log("Error generating the refresh token!");
+        throw new ApiError(500, "Error registering the user!");
     }
     
     user.refreshToken = refreshToken;
     const updatedUser = await user.save();
     if(!updatedUser){
-        throw new ApiError();
+        if(process.env.NODE_ENV !== 'production') console.log("Error saving the refresh token!");
+        throw new ApiError(500, "Error registering the user!");
     }
     
     delete updatedUser._doc.__v; 
