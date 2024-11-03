@@ -1,8 +1,9 @@
 import {Router} from 'express';
 import {body} from 'express-validator';
-import {registerUser, loginUser} from '../controllers/user.controllers.js';
+import {registerUser, loginUser, logoutUser} from '../controllers/user.controllers.js';
 import {upload} from '../middlewares/multer.middleware.js';
 import {imageTooLargeErrorHandler} from '../middlewares/imageTooLargeErrorHandler.middleware.js';
+import {verifyAccessToken} from '../middlewares/auth.middleware.js';
 
 
 const router = Router();
@@ -58,6 +59,12 @@ router.route('/login')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).*$/).withMessage('Password must contain at least an uppercase letter, a lowercase letter, a number, a special character and no spaces!')
     ],
     loginUser
+);
+
+router.route('/logout')
+.post(
+    verifyAccessToken,
+    logoutUser
 );
 
 
