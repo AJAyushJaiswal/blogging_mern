@@ -74,8 +74,8 @@ const registerUser = asyncHandler(async(req, res)=>{
     delete updatedUser._doc.updatedAt; 
     
     res.status(201)
-    .cookie('accessToken', accessToken, {...cookieOptions, maxAge: accessMaxAge})
-    .cookie('refreshToken', refreshToken, {...cookieOptions, maxAge: refreshMaxAge})
+    .cookie('accessToken', accessToken, {...cookieOptions, maxAge: accessTokenMaxAge})
+    .cookie('refreshToken', refreshToken, {...cookieOptions, maxAge: refreshTokenMaxAge})
     .json(new ApiResponse(201, "User registered successfully!", {user, accessToken, refreshToken}));
 });
 
@@ -124,8 +124,8 @@ const loginUser = asyncHandler(async (req, res) => {
     delete updatedUser._doc.updatedAt; 
     
     res.status(200)
-    .cookie('accessToken', accessToken, {...cookieOptions, maxAge: accessMaxAge})
-    .cookie('refreshToken', refreshToken, {...cookieOptions, maxAge: refreshMaxAge})
+    .cookie('accessToken', accessToken, {...cookieOptions, maxAge: accessTokenMaxAge})
+    .cookie('refreshToken', refreshToken, {...cookieOptions, maxAge: refreshTokenMaxAge})
     .json(new ApiResponse(200, "User logged in sucessfully!", {user: updatedUser, accessToken, refreshToken}));
 });
 
