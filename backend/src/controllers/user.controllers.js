@@ -75,6 +75,64 @@ const registerUser = asyncHandler(async(req, res)=>{
 });
 
 
+const loginUser = asyncHandler(async (req, res) => {
+    const valRes = validationResult(req);
+    if(!valRes || !valRes.isEmpty()){
+        throw new ApiError(400, "Invalid credentials!");
+    }
+    
+    const {email, password} = req.body;
+    
+    const user = await User.findOne({email});
+    if(!user){
+        throw new ApiError(400, "Invalid credentials!");
+    }
+    
+    const isPasswordValid = await user.isPasswordCorrect(password);
+    if(!isPasswordValid){
+        throw new ApiError(400, "Invalid credentials!");
+    }
+    
+    const accessToken = user.generateAccessToken();
+    if(!accessToken){
+        if(process.env.NODE_ENV) console.log("Error generating access token!");
+        throw new ApiError(500, "Error logging in!");
+    }
+
+    const refreshToken = user.generateRefreshToken();
+    if(!refreshToken){
+        if(process.env.NODE_ENV) console.log("Error generating refresh token!");
+        throw new ApiError(500, "Error logging in!");
+    }
+    
+    user.refreshToken = refreshToken;
+    const updatedUser = await save();
+    if(!updatedUser){
+        if(process.env.NODE_ENV) console.log("Error saving the refresh token!");
+        throw new ApiError(500, "Error logging in!");
+    }
+    
+    delete updatedUser._doc.__v; 
+    delete updatedUser._doc.password; 
+    delete updatedUser._doc.refreshToken;
+    delete updatedUser._doc.createdAt; 
+    delete updatedUser._doc.updatedAt; 
+    
+    const options = {
+        httpOnly: true,
+        secure: true
+    }; 
+    
+    const accessMaxAge = 30 * 60 * 60;
+    const refreshMaxAge = 3 * 24 * 60 * 60;
+    
+    res.status(200)
+    .cookie('accessToken', accessToken, {...options, accessMaxAge})
+    .cookie('refreshToken', refreshToken, {...options, refreshMaxAge})
+    .json(new ApiResponse(200, "User logged in sucessfully!"));
+});
+
+
 export {
     registerUser
 }
