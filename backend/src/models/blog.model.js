@@ -19,7 +19,8 @@ const blogSchema = new Schema({
     },
     status: {
         type: String,
-        trim: true
+        enum: ['public', 'private'],
+        default: 'public'
     },
     writer: {
        type: Schema.Types.ObjectId,
