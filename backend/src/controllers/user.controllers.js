@@ -4,7 +4,7 @@ import {ApiError} from '../utils/ApiError.js';
 import {User} from '../models/user.model.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
 import {uploadToCloudinary} from '../utils/cloudinary.js';
-import jwt, {JsonWebTokenError, TokenExpiredError} from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 
 
@@ -162,8 +162,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         }
     }
     catch(error){
-        if(error instanceof JsonWebTokenError) console.log('Refresh token is incorrect!\n', error);
-        if(error instanceof TokenExpiredError) console.log('Refresh token expired!\n', error);
+        if(error instanceof jwt.JsonWebTokenError) console.log('Refresh token is incorrect!\n', error);
+        if(error instanceof jwt.TokenExpiredError) console.log('Refresh token expired!\n', error);
         
         throw new ApiError(400, 'Invalid refresh token!');
     }
