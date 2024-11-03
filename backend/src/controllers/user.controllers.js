@@ -136,7 +136,25 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 
+const logoutUser = asyncHandler(async (req, res) => {
+    const result = await User.updateOne({_id: req.user}, {$unset: {refreshToken: ''}}).lean();
+    if(result.matchedCount === 0){
+        throw new ApiError(404, 'Invalid request!');
+    }
+
+    if(result.modifiedCount === 0){
+        throw new ApiError(400, 'Error logging out!');
+    }
+    
+    res(200)
+    .clearCookie('accessToken', options)
+    .clearCookie('refreshToken', options)
+    .json(new ApiResponse(200, "User logged out successfully!"));
+});
+
+
 export {
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser
 }
