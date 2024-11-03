@@ -1,0 +1,31 @@
+import {Router} from 'express';
+import {verifyAccessToken} from '../middlewares/auth.middleware.js';
+import {upload} from '../middlewares/multer.middleware.js';
+import {body} from 'express-validator';
+
+
+const router = Router();
+
+router.route('/publish')
+.post(
+    verifyAccessToken,
+    upload.single('featuredImageFile'),
+    [
+        body('title')
+        .notEmpty().withMessage('Title is required!')
+        .isString().withMessage('Title must be a string!')
+        .isLength({min: 10, max: 50}).withMessage('Title must be at least 10 characters!'),
+
+        body('content')
+        .notEmpty().withMessage('Content is required!')
+        .isString().withMessage('Content must be a string!')
+        .isLength({min: 100, max: 1500}).withMessage('Content must be in the range of 100-1500 characters!'),
+        
+        body('status')
+        .optional()
+        .isIn(['private', 'public']).withMessage('Invalid status!')
+    ]
+);
+
+
+export default router;
