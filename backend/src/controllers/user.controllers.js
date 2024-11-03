@@ -98,20 +98,20 @@ const loginUser = asyncHandler(async (req, res) => {
     
     const accessToken = user.generateAccessToken();
     if(!accessToken){
-        if(process.env.NODE_ENV) console.log("Error generating access token!");
+        if(process.env.NODE_ENV !== 'production') console.log("Error generating access token!");
         throw new ApiError(500, "Error logging in!");
     }
 
     const refreshToken = user.generateRefreshToken();
     if(!refreshToken){
-        if(process.env.NODE_ENV) console.log("Error generating refresh token!");
+        if(process.env.NODE_ENV !== 'production') console.log("Error generating refresh token!");
         throw new ApiError(500, "Error logging in!");
     }
     
     user.refreshToken = refreshToken;
     const updatedUser = await user.save();
     if(!updatedUser){
-        if(process.env.NODE_ENV) console.log("Error saving the refresh token!");
+        if(process.env.NODE_ENV !== 'production') console.log("Error saving the refresh token!");
         throw new ApiError(500, "Error logging in!");
     }
     
