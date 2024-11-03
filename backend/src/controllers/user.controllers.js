@@ -106,7 +106,7 @@ const loginUser = asyncHandler(async (req, res) => {
     }
     
     user.refreshToken = refreshToken;
-    const updatedUser = await save();
+    const updatedUser = await user.save();
     if(!updatedUser){
         if(process.env.NODE_ENV) console.log("Error saving the refresh token!");
         throw new ApiError(500, "Error logging in!");
@@ -129,7 +129,7 @@ const loginUser = asyncHandler(async (req, res) => {
     res.status(200)
     .cookie('accessToken', accessToken, {...options, accessMaxAge})
     .cookie('refreshToken', refreshToken, {...options, refreshMaxAge})
-    .json(new ApiResponse(200, "User logged in sucessfully!"));
+    .json(new ApiResponse(200, "User logged in sucessfully!", {user: updatedUser, accessToken, refreshToken}));
 });
 
 
