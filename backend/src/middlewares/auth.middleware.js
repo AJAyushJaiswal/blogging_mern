@@ -1,8 +1,9 @@
 import {asyncHandler} from '../utils/asyncHandler.js';
+import {ApiError} from '../utils/ApiError.js';
 import jwt from 'jsonwebtoken';
 import {User} from '../models/user.model.js';
 
-export const verifyAccessToken = asyncHandler(async (req, _, next) => {
+export const verifyAccessToken = asyncHandler(async (req, res, next) => {
     try{
         const accessToken = req.cookies?.accessToken || req.header('Authorization')?.replace('Bearer ', '');
         if(!accessToken){
@@ -23,6 +24,8 @@ export const verifyAccessToken = asyncHandler(async (req, _, next) => {
         next();
     }
     catch(error){
+        if(process.env.NODE_ENV !== 'production') console.log(error);
+
         if(error instanceof jwt.JsonWebTokenError){
             if(process.env.NODE_ENV !== 'production') console.log('Invalid access token!');
         }
