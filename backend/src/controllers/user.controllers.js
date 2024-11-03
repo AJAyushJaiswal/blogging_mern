@@ -4,6 +4,7 @@ import {ApiError} from '../utils/ApiError.js';
 import {User} from '../models/user.model.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
 import {uploadToCloudinary} from '../utils/cloudinary.js';
+import jwt, {JsonWebTokenError, TokenExpiredError} from 'jsonwebtoken';
 
 
 
@@ -147,8 +148,64 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const oldRefreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+    if(!oldRefreshToken){
+        throw new ApiError(400, "Invalid refresh token!");
+    }
+
+    let decodedRefreshToken;
+    try{
+        decodedRefreshToken = jwt.verify(oldRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+        if(!decodedRefreshToken){
+            throw new ApiError(400, "Invalid refresh token!");
+        }
+    }
+    catch(error){
+        if(error instanceof JsonWebTokenError) console.log('Refresh token is incorrect!\n', error);
+        if(error instanceof TokenExpiredError) console.log('Refresh token expired!\n', error);
+        
+        throw new ApiError(400, 'Invalid refresh token!');
+    }
+    
+    const user = await User.findOne({_id: decodedRefreshToken._id}).select('refreshToken');
+    if(!user){
+        throw new ApiError(400, "Invalid refresh token!");
+    }
+    
+    if(user.refreshToken !== oldRefreshToken){
+        throw new ApiError(400, "Invalid refresh token!");
+    }
+    
+    const newAccessToken = user.generateAccessToken();
+    if(!newAccessToken){
+        if(process.env.NODE_ENV !== 'production') console.log('Error generating new access token!');
+        throw new ApiError(400, "Error refreshing access token!"); 
+    }
+
+    const newRefreshToken = user.generateRefreshToken();
+    if(!newRefreshToken){
+        if(process.env.NODE_ENV !== 'production') console.log('Error generating new refresh token!');
+        throw new ApiError(400, "Error refreshing access token!"); 
+    }
+    
+    user.refreshToken = newRefreshToken;
+    const updatedUser = await user.save();
+    if(!updatedUser){
+        if(process.env.NODE_ENV !== 'production') console.log('Error saving new refresh token!');
+        throw new ApiError(400, "Error refreshing access token!"); 
+    }
+    
+    res.status(200)
+    .cookie('accessToken', newAccessToken, {...cookieOptions, maxAge: accessTokenMaxAge})
+    .cookie('refreshToken', newRefreshToken, {...cookieOptions, maxAge: refreshTokenMaxAge})
+    .json(new ApiResponse(200, "Access token refreshed successfully!"));
+});
+
+
 export {
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    refreshAccessToken
 }
