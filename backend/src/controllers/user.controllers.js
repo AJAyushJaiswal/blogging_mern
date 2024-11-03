@@ -10,7 +10,8 @@ import jwt from 'jsonwebtoken';
 
 const cookieOptions = {
     httpOnly: true,
-    secure: true
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax'
 }; 
 
 const accessTokenMaxAge = 30 * 60 * 60;
