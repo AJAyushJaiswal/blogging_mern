@@ -6,6 +6,16 @@ import {ApiResponse} from '../utils/ApiResponse.js';
 import {uploadToCloudinary} from '../utils/cloudinary.js';
 
 
+
+const cookieOptions = {
+    httpOnly: true,
+    secure: true
+}; 
+
+const accessTokenMaxAge = 30 * 60 * 60;
+const refreshTokenMaxAge = 3 * 24 * 60 * 60;
+
+    
 const registerUser = asyncHandler(async(req, res)=>{
     const valRes = validationResult(req);
     if(!valRes.isEmpty()){
@@ -63,17 +73,9 @@ const registerUser = asyncHandler(async(req, res)=>{
     delete updatedUser._doc.createdAt; 
     delete updatedUser._doc.updatedAt; 
     
-    const options = {
-        httpOnly: true,
-        secure: true,
-    }
-    
-    const accessMaxAge = 30 * 60 * 60;
-    const refreshMaxAge = 3 * 24 * 60 * 60;
-    
     res.status(201)
-    .cookie('accessToken', accessToken, {...options, accessMaxAge})
-    .cookie('refreshToken', refreshToken, {...options, refreshMaxAge})
+    .cookie('accessToken', accessToken, {...cookieOptions, maxAge: accessMaxAge})
+    .cookie('refreshToken', refreshToken, {...cookieOptions, maxAge: refreshMaxAge})
     .json(new ApiResponse(201, "User registered successfully!", {user, accessToken, refreshToken}));
 });
 
@@ -121,17 +123,9 @@ const loginUser = asyncHandler(async (req, res) => {
     delete updatedUser._doc.createdAt; 
     delete updatedUser._doc.updatedAt; 
     
-    const options = {
-        httpOnly: true,
-        secure: true
-    }; 
-    
-    const accessMaxAge = 30 * 60 * 60;
-    const refreshMaxAge = 3 * 24 * 60 * 60;
-    
     res.status(200)
-    .cookie('accessToken', accessToken, {...options, accessMaxAge})
-    .cookie('refreshToken', refreshToken, {...options, refreshMaxAge})
+    .cookie('accessToken', accessToken, {...cookieOptions, maxAge: accessMaxAge})
+    .cookie('refreshToken', refreshToken, {...cookieOptions, maxAge: refreshMaxAge})
     .json(new ApiResponse(200, "User logged in sucessfully!", {user: updatedUser, accessToken, refreshToken}));
 });
 
@@ -147,8 +141,8 @@ const logoutUser = asyncHandler(async (req, res) => {
     }
     
     res(200)
-    .clearCookie('accessToken', options)
-    .clearCookie('refreshToken', options)
+    .clearCookie('accessToken', cookieOptions)
+    .clearCookie('refreshToken', cookieOptions)
     .json(new ApiResponse(200, "User logged out successfully!"));
 });
 
