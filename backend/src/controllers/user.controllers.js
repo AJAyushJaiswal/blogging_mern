@@ -36,12 +36,9 @@ const registerUser = asyncHandler(async(req, res)=>{
     if(image){
         try{
             avatar = await uploadToCloudinary(image);
-            if(!avatar){
-                throw new ApiError(400, "Error uploading the image!");
-            }
         }
         catch(error){
-            throw new ApiError(400, "Error uploading the image!");
+            throw new ApiError(400, "Error uploading the avatar!");
         }
     }
     
