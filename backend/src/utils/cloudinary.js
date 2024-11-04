@@ -11,12 +11,10 @@ cloudinary.config({
 
 const uploadToCloudinary = async (image) => {
     if(!image || !image.buffer || !Buffer.isBuffer(image.buffer)){
-        if (process.env.NODE_ENV !== 'production') console.log('Image is required!');
         throw new ApiError(500, "Image is required!");
     }
 
     if(!Buffer.isBuffer(image.buffer)){
-        if (process.env.NODE_ENV !== 'production') console.log('Image is required!');
         throw new ApiError(500, "Invalid file!");
     }
 
