@@ -14,8 +14,8 @@ const cookieOptions = {
     sameSite: process.env.NODE_ENV === 'production' ? 'Strict' : 'Lax'
 }; 
 
-const accessTokenMaxAge = 30 * 60 * 60;
-const refreshTokenMaxAge = 3 * 24 * 60 * 60;
+const accessTokenMaxAge = 30 * 60 * 1000;
+const refreshTokenMaxAge = 3 * 24 * 60 * 1000;
 
     
 const registerUser = asyncHandler(async(req, res)=>{
