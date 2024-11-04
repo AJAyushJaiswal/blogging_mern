@@ -24,8 +24,6 @@ export const verifyAccessToken = asyncHandler(async (req, res, next) => {
         next();
     }
     catch(error){
-        if(process.env.NODE_ENV !== 'production') console.log(error);
-
         if(error instanceof jwt.JsonWebTokenError){
             if(process.env.NODE_ENV !== 'production') console.log('Invalid access token!\n', error);
         }
