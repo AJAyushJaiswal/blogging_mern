@@ -24,6 +24,7 @@ const publishBlog = asyncHandler(async (req, res) => {
         featuredImageUrl = await uploadToCloudinary(featuredImageFile);
     }
     catch(error){
+        if(process.env.NODE_ENV !== 'production') console.log(error);
         throw new ApiError(500, "Error uploading the featured image!");        
     }
     
