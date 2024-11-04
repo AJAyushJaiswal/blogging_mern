@@ -1,20 +1,22 @@
 import {Router} from 'express';
 import {verifyAccessToken} from '../middlewares/auth.middleware.js';
 import {upload} from '../middlewares/multer.middleware.js';
+import {imageTooLargeErrorHandler} from '../middlewares/imageTooLargeErrorHandler.middleware.js';
 import {body} from 'express-validator';
+import {publishBlog} from '../controllers/blog.controllers.js';
 
 
 const router = Router();
 
-router.route('/publish')
-.post(
+router.route('/publish').post(
     verifyAccessToken,
     upload.single('featuredImageFile'),
+    imageTooLargeErrorHandler,
     [
         body('title')
         .notEmpty().withMessage('Title is required!')
         .isString().withMessage('Title must be a string!')
-        .isLength({min: 10, max: 50}).withMessage('Title must be at least 10 characters!'),
+        .isLength({min: 3, max: 50}).withMessage('Title must be at least 10 characters!'),
 
         body('content')
         .notEmpty().withMessage('Content is required!')
@@ -24,7 +26,8 @@ router.route('/publish')
         body('status')
         .optional()
         .isIn(['private', 'public']).withMessage('Invalid status!')
-    ]
+    ],
+    publishBlog
 );
 
 

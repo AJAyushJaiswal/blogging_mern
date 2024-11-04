@@ -1,18 +1,19 @@
 import {asyncHandler} from '../utils/asyncHandler.js';
 import {validationResult} from 'express-validator';
+import {ApiError} from '../utils/ApiError.js';
 import {uploadToCloudinary} from '../utils/cloudinary.js';
 import {Blog} from '../models/blog.model.js';
-import { ApiResponse } from '../utils/ApiResponse.js';
+import {ApiResponse} from '../utils/ApiResponse.js';
 
 const publishBlog = asyncHandler(async (req, res) => {
     const valRes = validationResult(req);
     if(!valRes?.isEmpty()){
-        throw new ApiError(400, "Invalid input data!");
+        throw new ApiError(400, "Invalid input data!", null, valRes.errors);
     }
     
     const {title, content, status} = req.body;
 
-    const featuredImageFile = req.url;
+    const featuredImageFile = req.file;
     if(!featuredImageFile){
         throw new ApiError(400, "Featured image is required!");
     }
