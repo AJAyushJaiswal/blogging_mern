@@ -4,6 +4,7 @@ import {ApiError} from '../utils/ApiError.js';
 import {uploadToCloudinary} from '../utils/cloudinary.js';
 import {Blog} from '../models/blog.model.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
+import {isValidObjectId} from 'mongoose';
 
 const publishBlog = asyncHandler(async (req, res) => {
     const valRes = validationResult(req);
@@ -38,6 +39,46 @@ const publishBlog = asyncHandler(async (req, res) => {
 });
 
 
+const updateBlog = asyncHandler(async (req, res) => {
+    const blogId = req.params?.blogId;
+    if(!blogId || !isValidObjectId(blogId)){
+        throw new ApiError(400, "Invalid blog id!");
+    }
+
+    const {title, content, status} = req.body;
+    const featuredImageFile = req.file;
+    
+    const updateResult = await Blog.updateOne({_id: blogId, writer: req.user}, {$set: {title, content, status}}).lean();
+    if(updateResult.matchedCount === 0){
+        throw new ApiError(400, "Invalid blog id!");
+    }
+    if(updateResult.modifiedCount === 0){
+        throw new ApiError(500, "Error updating the blog!");
+    }
+    
+    let featuredImageUrl;
+    if(featuredImageFile){
+        try{
+            featuredImageUrl = await uploadToCloudinary(featuredImageFile);
+        }
+        catch(error){
+            if(process.env.NODE_ENV !== 'production') console.log(error); 
+            throw new ApiError(500, "Error uploading the featured image!");
+        }
+    }
+    
+    if(featuredImageUrl){
+        const updateResult = await Blog.updateOne({_id: blogId, writer: req.user}, {$set: {featuredImage: featuredImageUrl}}).lean();
+        if(updateResult.modifiedCount === 0){
+            throw new ApiError(500, "Error updating the blog!");
+        }
+    }
+
+    res.status(200).json(new ApiResponse(200, "Blog updated successfully!"));
+});
+
+
 export {
-    publishBlog
+    publishBlog,
+    updateBlog
 }
