@@ -41,6 +41,34 @@ const uploadToCloudinary = async (image) => {
 }
 
 
+const deleteFromCloudinary = async(imageUrl) => {
+    if(!imageUrl){
+        throw new ApiError(400, 'Image url is required!');
+    }
+    
+    const imageUrlArray = imageUrl.split('/');
+    const publicId = `${CLOUDINARY_MAIN_FOLDER}/${process.env.NODE_ENV === 'production' ? 'production' : 'development'}/${imageUrlArray[imageUrlArray.length - 1].split('.')[0]}`;
+    if(!publicId){
+        throw new ApiError(400, "Invalid image url!");
+    }
+   
+    try{
+        const response = await cloudinary.uploader.destroy(publicId, {
+            resource_type: 'image'
+        });
+        if(response.result !== 'ok'){
+            if(process.env.NODE_ENV !== 'production') console.log(response);
+            throw new ApiError(400, "Error deleting image!");
+        }
+    }
+    catch(error){
+        if(process.env.NODE_ENV !== 'production') console.log(error);
+        throw new ApiError(400, "Error deleting image!");
+    }
+};
+
+
 export {
-    uploadToCloudinary
+    uploadToCloudinary,
+    deleteFromCloudinary
 }
