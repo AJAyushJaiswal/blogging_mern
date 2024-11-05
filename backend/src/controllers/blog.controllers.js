@@ -105,12 +105,12 @@ const getBlog = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid blog id!");
     }
 
-    const blog = await Blog.findOne({_id: blogId, writer: req.user}).select().lean();
+    const blog = await Blog.findOne({_id: blogId, writer: req.user}).select('-__v -updatedAt').lean();
     if(!blog){
         throw new ApiError(400, "Error fetching the blog!");
     }
     
-    res.status(200).json(new ApiResponse(200, "Blog fetched successfully!"));
+    res.status(200).json(new ApiResponse(200, "Blog fetched successfully!", blog));
 });
 
 
