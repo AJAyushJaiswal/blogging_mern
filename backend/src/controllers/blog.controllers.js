@@ -99,8 +99,24 @@ const deleteBlog = asyncHandler(async (req, res) => {
 });
 
 
+const getBlog = asyncHandler(async (req, res) => {
+    const blogId = req.params?.blogId;
+    if(!blogId || !isValidObjectId(blogId)){
+        throw new ApiError(400, "Invalid blog id!");
+    }
+
+    const blog = await Blog.findOne({_id: blogId, writer: req.user}).select().lean();
+    if(!blog){
+        throw new ApiError(400, "Error fetching the blog!");
+    }
+    
+    res.status(200).json(new ApiResponse(200, "Blog fetched successfully!"));
+});
+
+
 export {
     publishBlog,
     updateBlog,
-    deleteBlog
+    deleteBlog,
+    getBlog
 }
