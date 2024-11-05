@@ -3,7 +3,7 @@ import {verifyAccessToken} from '../middlewares/auth.middleware.js';
 import {upload} from '../middlewares/multer.middleware.js';
 import {imageTooLargeErrorHandler} from '../middlewares/imageTooLargeErrorHandler.middleware.js';
 import {body} from 'express-validator';
-import {publishBlog, updateBlog, deleteBlog} from '../controllers/blog.controllers.js';
+import {publishBlog, updateBlog, deleteBlog, getBlog} from '../controllers/blog.controllers.js';
 
 
 const router = Router();
@@ -31,6 +31,10 @@ router.route('/publish').post(
 );
 
 router.route('/:blogId')
+.get(
+    verifyAccessToken,
+    getBlog
+)
 .post(
     verifyAccessToken,
     upload.single('featuredImageFile'),
