@@ -101,5 +101,6 @@ const deleteBlog = asyncHandler(async (req, res) => {
 
 export {
     publishBlog,
-    updateBlog
+    updateBlog,
+    deleteBlog
 }
