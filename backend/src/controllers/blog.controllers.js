@@ -75,6 +75,30 @@ const updateBlog = asyncHandler(async (req, res) => {
 });
 
 
+const deleteBlog = asyncHandler(async (req, res) => {
+    const blogId = req.params?.blogId;
+
+    if(!blogId || !isValidObjectId(blogId)){
+        throw new ApiError(400, "Invalid blog id!");
+    }
+    
+    const blog = await Blog.findOneAndDelete({_id: blogId, writer: req.user}).select('featuredImage').lean();
+    if(!blog){
+        throw new ApiError(400, "Error deleting the blog!");
+    }
+    
+    try{
+        await deleteFromCloudinary(blog.featuredImage);
+    }
+    catch(error){
+        if(process.env.NODE_ENV !== 'production') console.log(error);
+        throw new ApiError(400, "Error deleting the featured image!");
+    }
+    
+    res.status(200).json(new ApiResponse(200, "Blog deleted successfully!"));
+});
+
+
 export {
     publishBlog,
     updateBlog
