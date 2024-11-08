@@ -114,9 +114,20 @@ const getWriterBlog = asyncHandler(async (req, res) => {
 });
 
 
+const getAllWriterBlogs = asyncHandler(async (req, res) => {
+    const blogs = await Blog.find({writer: req.user}).lean();
+    if(!blogs){
+        throw new ApiError(400, "Error fetching your blogs!");
+    }
+    
+    res.status(200).jso(new ApiResponse(200, "Blogs fetched successfully!"), blogs);
+});
+
+
 export {
     publishBlog,
     updateBlog,
     deleteBlog,
-    getWriterBlog
+    getWriterBlog,
+    getAllWriterBlogs
 }
