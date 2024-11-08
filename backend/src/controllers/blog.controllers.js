@@ -120,7 +120,7 @@ const getAllWriterBlogs = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Error fetching your blogs!");
     }
     
-    res.status(200).jso(new ApiResponse(200, "Blogs fetched successfully!"), blogs);
+    res.status(200).json(new ApiResponse(200, "Blogs fetched successfully!", blogs));
 });
 
 
