@@ -99,7 +99,7 @@ const deleteBlog = asyncHandler(async (req, res) => {
 });
 
 
-const getBlog = asyncHandler(async (req, res) => {
+const getWriterBlog = asyncHandler(async (req, res) => {
     const blogId = req.params?.blogId;
     if(!blogId || !isValidObjectId(blogId)){
         throw new ApiError(400, "Invalid blog id!");
@@ -118,5 +118,5 @@ export {
     publishBlog,
     updateBlog,
     deleteBlog,
-    getBlog
+    getWriterBlog
 }
