@@ -115,7 +115,7 @@ const getWriterBlog = asyncHandler(async (req, res) => {
 
 
 const getAllWriterBlogs = asyncHandler(async (req, res) => {
-    const blogs = await Blog.find({writer: req.user}).select('-__v -createdAt -updatedAt -writer -content').lean();
+    const blogs = await Blog.find({writer: req.user}).select('-__v -writer -content').lean();
     if(!blogs){
         throw new ApiError(400, "Error fetching your blogs!");
     }
