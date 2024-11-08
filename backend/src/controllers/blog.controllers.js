@@ -105,7 +105,7 @@ const getWriterBlog = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid blog id!");
     }
 
-    const blog = await Blog.findOne({_id: blogId, writer: req.user}).select('-__v -updatedAt').lean();
+    const blog = await Blog.findOne({_id: blogId, writer: req.user}).select('-__v -writer').lean();
     if(!blog){
         throw new ApiError(400, "Error fetching the blog!");
     }
