@@ -165,11 +165,52 @@ const getBlog = asyncHandler(async (req, res) => {
 });
 
 
+const getAllBlogs = asyncHandler(async (req, res) => {
+    const blogs = await Blog.aggregate([
+        {
+            $match: {
+                status: 'private'    
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'writer',
+                foreignField: '_id',
+                as: 'writer',
+                pipeline: [
+                    {
+                        $project: {
+                            firstname: 1,
+                            lastname: 1,
+                            avatar: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                "__v": 0,
+                "status": 0
+            }
+        }
+    ]);
+    
+    if(!blogs){
+        throw new ApiError(400, 'Error fetching the blogs!');
+    }
+    
+    res.status(200).json(new ApiResponse(200, "Blogs fetched successfully!", blogs));
+});
+
+
 export {
     publishBlog,
     updateBlog,
     deleteBlog,
     getWriterBlog,
     getAllWriterBlogs,
-    getBlog
+    getBlog,
+    getAllBlogs
 }

@@ -3,7 +3,7 @@ import {verifyAccessToken} from '../middlewares/auth.middleware.js';
 import {upload} from '../middlewares/multer.middleware.js';
 import {imageTooLargeErrorHandler} from '../middlewares/imageTooLargeErrorHandler.middleware.js';
 import {body} from 'express-validator';
-import {publishBlog, updateBlog, deleteBlog, getWriterBlog, getAllWriterBlogs, getBlog} from '../controllers/blog.controllers.js';
+import {publishBlog, updateBlog, deleteBlog, getWriterBlog, getAllWriterBlogs, getBlog, getAllBlogs} from '../controllers/blog.controllers.js';
 
 
 const router = Router();
@@ -63,6 +63,8 @@ router.route('/blogger/')
 
 
 router.route('/:blogId').get(getBlog);
+
+router.route('/').get(getAllBlogs);
 
 
 export default router;
