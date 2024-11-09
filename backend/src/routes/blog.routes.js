@@ -30,7 +30,7 @@ router.route('/publish').post(
     publishBlog
 );
 
-router.route('/:blogId')
+router.route('/blogger/:blogId')
 .get(
     verifyAccessToken,
     getWriterBlog
@@ -58,7 +58,7 @@ router.route('/:blogId')
 )
 .delete(verifyAccessToken, deleteBlog);
 
-router.route('/')
+router.route('/blogger/')
 .get(verifyAccessToken, getAllWriterBlogs);
 
 
