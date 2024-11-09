@@ -124,10 +124,42 @@ const getAllWriterBlogs = asyncHandler(async (req, res) => {
 });
 
 
+const getBlog = asyncHandler(async (req, res) => {
+    const blogId = req.params?.blogId;
+    if(!blogId || !isValidObjectId(blogId)){
+        throw new ApiError(400, "Invalid blog id!");
+    }
+    
+    const blog = Blog.aggregate([
+        {
+            $match: {
+                _id: blogId
+            }
+        },
+        {
+            $lookup: {
+                from: 'User',
+                localField: 'writer',
+                foreignField: '_id',
+                as: 'writer',
+                // pipeline: [
+                //     {
+                //         $project: {
+                            
+                //         }
+                //     }
+                // ]
+            }
+        }
+    ]);
+});
+
+
 export {
     publishBlog,
     updateBlog,
     deleteBlog,
     getWriterBlog,
-    getAllWriterBlogs
+    getAllWriterBlogs,
+    getBlog
 }
