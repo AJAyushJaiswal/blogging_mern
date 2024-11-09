@@ -4,7 +4,7 @@ import {ApiError} from '../utils/ApiError.js';
 import {uploadToCloudinary, deleteFromCloudinary} from '../utils/cloudinary.js';
 import {Blog} from '../models/blog.model.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
-import {isValidObjectId} from 'mongoose';
+import {isValidObjectId, Types} from 'mongoose';
 
 const publishBlog = asyncHandler(async (req, res) => {
     const valRes = validationResult(req);
@@ -130,28 +130,38 @@ const getBlog = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid blog id!");
     }
     
-    const blog = Blog.aggregate([
+    const blog = await Blog.aggregate([
         {
             $match: {
-                _id: blogId
+                _id: new Types.ObjectId(blogId),
+                status: 'public'
             }
         },
         {
             $lookup: {
-                from: 'User',
+                from: 'users',
                 localField: 'writer',
                 foreignField: '_id',
                 as: 'writer',
-                // pipeline: [
-                //     {
-                //         $project: {
-                            
-                //         }
-                //     }
-                // ]
+                pipeline: [
+                    {
+                        $project: {
+                            "_id": 1,
+                            "firstname": 1,
+                            "lastname": 1,
+                            "avatar": 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                "__v": 0
             }
         }
     ]);
+    res.status(200).json(new ApiResponse(200, "Blog fetched successfully!", blog));
 });
 
 
