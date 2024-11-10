@@ -6,6 +6,9 @@ import {Blog} from '../models/blog.model.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
 import {isValidObjectId, Types} from 'mongoose';
 
+
+// Controllers for bloggers
+
 const publishBlog = asyncHandler(async (req, res) => {
     const valRes = validationResult(req);
     if(!valRes?.isEmpty()){
@@ -99,7 +102,7 @@ const deleteBlog = asyncHandler(async (req, res) => {
 });
 
 
-const getWriterBlog = asyncHandler(async (req, res) => {
+const getMyBlog = asyncHandler(async (req, res) => {
     const blogId = req.params?.blogId;
     if(!blogId || !isValidObjectId(blogId)){
         throw new ApiError(400, "Invalid blog id!");
@@ -114,7 +117,7 @@ const getWriterBlog = asyncHandler(async (req, res) => {
 });
 
 
-const getAllWriterBlogs = asyncHandler(async (req, res) => {
+const getAllMyBlogs = asyncHandler(async (req, res) => {
     const blogs = await Blog.find({writer: req.user}).select('-__v -writer -content').lean();
     if(!blogs){
         throw new ApiError(400, "Error fetching your blogs!");
@@ -123,6 +126,9 @@ const getAllWriterBlogs = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, "Blogs fetched successfully!", blogs));
 });
 
+
+
+// Controllers for anyone
 
 const getBlog = asyncHandler(async (req, res) => {
     const blogId = req.params?.blogId;
@@ -209,8 +215,8 @@ export {
     publishBlog,
     updateBlog,
     deleteBlog,
-    getWriterBlog,
-    getAllWriterBlogs,
+    getMyBlog,
+    getAllMyBlogs,
     getBlog,
     getAllBlogs
 }
