@@ -217,17 +217,54 @@ const getMyProfile = asyncHandler(async (req, res) => {
                 pipeline: [
                     {
                         $group: {
-                            _id: null,
-                            totalBlogCount: {$sum: 1}       
-                        }
-                    },
-                    {
-                        $group: {
-                            _id: {status: "$status"},
+                            _id: "$status",
                             count: {$sum: 1}
                         }
-                    },
+                    }
                 ]
+            }
+        },
+        {
+            $addFields: {
+                 publicBlogCount: {
+                    $let: {
+                        vars: {
+                            publicStatus: {
+                                $arrayElemAt: [
+                                    {
+                                        $filter: {
+                                            input: "$blogs",
+                                            as: "status",
+                                            cond: {$eq: ["$$status._id", "public"]}
+                                        }
+                                    },
+                                    0
+                                ]
+                            }
+                        },
+                        in: {$ifNull: ["$$publicStatus.count", 0]}
+                    }
+                },
+                privateBlogCount: {
+                    $let: {
+                        vars: {
+                            privateStatus: {
+                                $arrayElemAt: [
+                                    {
+                                        $filter: {
+                                            input: "$blogs",
+                                            as: "status",
+                                            cond: {$eq: ["$$status._id", "private"]}
+                                        }
+                                    },
+                                    0
+                                ]
+                            }
+                        },
+                        in: {$ifNull: ["$$privateStatus.count", 0]}
+                    }
+                },
+               
             }
         },
         {
@@ -239,10 +276,13 @@ const getMyProfile = asyncHandler(async (req, res) => {
                 avatar: 1,
                 createdAt: 1,
                 updatedAt: 1,
-                totalBlogCount: "$blogs.0.totalBlogCount",
-                publicBlogCount: "$blogs.1.count",
-                privateBlogCount: "$blogs.2.count"
+                publicBlogCount: 1,
+                privateBlogCount: 1,
+                totalBlogCount: {
+                    $add: ["$publicBlogCount", "$privateBlogCount"]
+                }
             }
+
         }
     ]);
 
