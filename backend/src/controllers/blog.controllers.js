@@ -222,7 +222,7 @@ getWriterBlogs = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found!");
     }
     
-    const blogs = await Blog.find({writer: userId}).select('title featuredImage createdAt').lean();
+    const blogs = await Blog.find({writer: userId, status: 'public'}).select('title featuredImage createdAt').lean();
     if(!blogs){
         throw new ApiError(400, "Error fetching blogs!");
     }
