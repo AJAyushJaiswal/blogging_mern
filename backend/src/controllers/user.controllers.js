@@ -5,6 +5,7 @@ import {User} from '../models/user.model.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
 import {uploadToCloudinary} from '../utils/cloudinary.js';
 import jwt from 'jsonwebtoken';
+import {isValidObjectId, Types} from 'mongoose';
 
 
 
@@ -294,10 +295,61 @@ const getMyProfile = asyncHandler(async (req, res) => {
 });
 
 
+const getUserProfile = asyncHandler(async (req, res) => {
+    const userId = req.params?.userId;
+    if(!userId || !isValidObjectId(userId)){
+        throw new ApiError(400, "User not found!");
+    }
+
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new Types.ObjectId(userId)
+            }
+        },
+        {
+            $lookup: {
+                from: 'blogs',
+                localField: '_id',
+                foreignField: 'writer',
+                as: 'blogs',
+                pipeline: [
+                    {
+                        $match: {
+                            status: 'public'
+                        }
+                    },
+                    {
+                        $count: 'count'
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                firstname: 1,
+                lastname: 1,
+                avatar: 1,
+                createdAt: 1,
+                blogCount: {$ifNull: [{$arrayElemAt: ["$blogs.count", 0]}, 0]}
+            }
+        }
+    ]);
+    
+    if(!user){
+        throw new ApiError(404, "Error fetching user profile!");
+    }
+
+    res.status(200).json(new ApiResponse(200, "User profile fetched successfully!", user));
+});
+
+
 export {
     registerUser,
     loginUser,
     logoutUser,
     refreshAccessToken,
-    getMyProfile
+    getMyProfile,
+    getUserProfile
 }
