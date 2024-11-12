@@ -58,9 +58,7 @@ router.route('/blogger/:blogId')
 )
 .delete(verifyAccessToken, deleteBlog);
 
-router.route('/blogger/')
-.get(verifyAccessToken, getAllMyBlogs);
-
+router.route('/myblogs').get(verifyAccessToken, getAllMyBlogs);
 
 router.route('/:blogId').get(getBlog);
 
