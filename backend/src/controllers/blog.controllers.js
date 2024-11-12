@@ -211,6 +211,26 @@ const getAllBlogs = asyncHandler(async (req, res) => {
 });
 
 
+getWriterBlogs = asyncHandler(async (req, res) => {
+    const userId = req.params?.userId;
+    if(!userId || !isValidObjectId(userId)){
+        throw new ApiError(404, "User not found!");
+    }
+    
+    const writer = await User.exists({_id: userId}).lean();
+    if(!writer){
+        throw new ApiError(404, "User not found!");
+    }
+    
+    const blogs = await Blog.find({writer: userId}).select('title featuredImage createdAt').lean();
+    if(!blogs){
+        throw new ApiError(400, "Error fetching blogs!");
+    }
+    
+    res.status(200).json(new ApiResponse(200, "Blogs fetched successfully!", blogs));
+});
+
+
 export {
     publishBlog,
     updateBlog,
@@ -218,5 +238,6 @@ export {
     getMyBlog,
     getAllMyBlogs,
     getBlog,
-    getAllBlogs
+    getAllBlogs,
+    getWriterBlogs
 }
