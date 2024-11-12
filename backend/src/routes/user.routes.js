@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import {body} from 'express-validator';
-import {registerUser, loginUser, logoutUser, refreshAccessToken} from '../controllers/user.controllers.js';
+import {registerUser, loginUser, logoutUser, refreshAccessToken, getMyProfile} from '../controllers/user.controllers.js';
 import {upload} from '../middlewares/multer.middleware.js';
 import {imageTooLargeErrorHandler} from '../middlewares/imageTooLargeErrorHandler.middleware.js';
 import {verifyAccessToken} from '../middlewares/auth.middleware.js';
@@ -69,6 +69,13 @@ router.route('/logout')
 
 router.route('/refresh-token')
 .post(refreshAccessToken);
+
+
+router.route('/profile')
+.get(
+    verifyAccessToken,
+    getMyProfile
+);
 
 
 export default router;
