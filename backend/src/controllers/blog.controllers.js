@@ -175,7 +175,7 @@ const getAllBlogs = asyncHandler(async (req, res) => {
     const blogs = await Blog.aggregate([
         {
             $match: {
-                status: 'private'    
+                status: 'public'    
             }
         },
         {
