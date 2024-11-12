@@ -201,9 +201,63 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 
+const getMyProfile = asyncHandler(async (req, res) => {
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: req.user,
+            }
+        },
+        {
+            $lookup: {
+                from: 'blogs',
+                localField: '_id',
+                foreignField: 'writer',
+                as: 'blogs',
+                pipeline: [
+                    {
+                        $group: {
+                            _id: null,
+                            totalBlogCount: {$sum: 1}       
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: {status: "$status"},
+                            count: {$sum: 1}
+                        }
+                    },
+                ]
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                firstname: 1,
+                lastname: 1,
+                email: 1,
+                avatar: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                totalBlogCount: "$blogs.0.totalBlogCount",
+                publicBlogCount: "$blogs.1.count",
+                privateBlogCount: "$blogs.2.count"
+            }
+        }
+    ]);
+
+    if(!user){
+        throw new ApiError(400, "Error fetching your profile!");
+    }
+    
+    res.status(200).json(new ApiResponse(200, "Your profile fetched successfully!", user));
+});
+
+
 export {
     registerUser,
     loginUser,
     logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    getMyProfile
 }
