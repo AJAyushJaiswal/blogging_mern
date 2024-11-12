@@ -211,7 +211,7 @@ const getAllBlogs = asyncHandler(async (req, res) => {
 });
 
 
-getWriterBlogs = asyncHandler(async (req, res) => {
+const getWriterBlogs = asyncHandler(async (req, res) => {
     const userId = req.params?.userId;
     if(!userId || !isValidObjectId(userId)){
         throw new ApiError(404, "User not found!");
