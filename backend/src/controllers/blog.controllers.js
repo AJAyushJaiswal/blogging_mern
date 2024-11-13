@@ -4,6 +4,7 @@ import {ApiError} from '../utils/ApiError.js';
 import {uploadToCloudinary, deleteFromCloudinary} from '../utils/cloudinary.js';
 import {Blog} from '../models/blog.model.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
+import {User} from '../models/user.model.js';
 import {isValidObjectId, Types} from 'mongoose';
 
 
