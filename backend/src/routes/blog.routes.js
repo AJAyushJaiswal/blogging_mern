@@ -30,7 +30,7 @@ router.route('/publish').post(
     publishBlog
 );
 
-router.route('/blogger/:blogId')
+router.route('/u/:blogId')
 .get(
     verifyAccessToken,
     getMyBlog
@@ -64,7 +64,7 @@ router.route('/:blogId').get(getBlog);
 
 router.route('/').get(getAllBlogs);
 
-router.route('/w/:userId').get(getUserBlogs);
+router.route('/u/:userId').get(getUserBlogs);
 
 
 export default router;
